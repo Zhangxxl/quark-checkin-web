@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>夸克网盘签到助手</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div>
+        <h1>夸克网盘签到助手
+          <a class="gh-btn" href="https://github.com/Zhangxxl/quark-checkin-web" target="_blank" rel="noopener" title="GitHub 仓库">
+            <svg class="gh-icon" viewBox="0 0 16 16" width="20" height="20" fill="currentColor" aria-hidden="true">
+              <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path>
+            </svg>
+            <span>GitHub</span>
+          </a>
+        </h1>
+        <p class="subtitle" id="status-line">加载中…</p>
+      </div>
+      <div class="header-right">
+        <span class="badge" id="next-run">下次: --</span>
+      </div>
+    </header>
+
+    <section class="toolbar">
+      <button class="btn btn-primary" id="btn-add">➕ 添加用户</button>
+      <button class="btn btn-success" id="btn-sign-all">🚀 一键签到全部</button>
+      <button class="btn btn-warn" id="btn-sign-selected">☑️ 批量签到</button>
+      <button class="btn btn-help" id="btn-help">📋 抓包说明</button>
+      <span class="spacer"></span>
+      <button class="btn btn-ghost" id="btn-schedule">⚙️ 设置</button>
+      <button class="btn btn-ghost" id="btn-refresh">🔄 刷新</button>
+    </section>
+
+    <section class="user-count" id="user-count">共 0 个用户</section>
+
+    <section class="user-list" id="user-list">
+      <div class="empty" id="empty-tip">还没有用户，点击「添加用户」开始。</div>
+    </section>
+
+    <section class="log-section">
+      <div class="log-header">
+        <h2>📜 最近三天日志</h2>
+        <label class="auto-toggle">
+          <input type="checkbox" id="auto-log" checked /> 实时刷新
+        </label>
+      </div>
+      <pre class="log-area" id="log-area">加载中…</pre>
+    </section>
+  </div>
+
+  <!-- 添加用户弹窗 -->
+  <div class="modal" id="modal-add">
+    <div class="modal-box">
+      <h3>➕ 添加新用户</h3>
+      <label class="field-label">用户昵称</label>
+      <input type="text" id="add-nickname" placeholder="例如：张三" />
+      <label class="field-label">签到 URL</label>
+      <input type="text" id="add-url" placeholder="粘贴完整URL（必须包含 kps、sign、vcode 参数）" />
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="add-cancel">取消</button>
+        <button class="btn btn-primary" id="add-confirm">添加</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 定时设置弹窗 -->
+  <div class="modal" id="modal-schedule">
+    <div class="modal-box">
+      <h3>⚙️ 设置</h3>
+      <label class="field-label">每天签到时间（24小时制）</label>
+      <div class="time-row">
+        <input type="number" id="sch-hour" min="0" max="23" /> <span class="colon">:</span>
+        <input type="number" id="sch-min" min="0" max="59" />
+      </div>
+      <label class="field-label">Server酱通知模式</label>
+      <select id="notify-mode">
+        <option value="all">每次签到都通知</option>
+        <option value="fail">仅失败时通知</option>
+        <option value="success">仅成功时通知</option>
+      </select>
+      <label class="field-label">Server酱 SendKey</label>
+      <input type="text" id="sendkey" placeholder="SCT... (compose 中的仅为默认值，此处可覆盖)" />
+      <div class="hint-row">
+        <button class="btn btn-ghost" id="sendkey-test" type="button">测试推送</button>
+        <span class="hint">留空则不推送通知</span>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="sch-cancel">取消</button>
+        <button class="btn btn-primary" id="sch-confirm">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 批量选择弹窗 -->
+  <div class="modal" id="modal-select">
+    <div class="modal-box">
+      <h3>☑️ 选择要签到的用户</h3>
+      <div class="select-list" id="select-list"></div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="sel-cancel">取消</button>
+        <button class="btn btn-success" id="sel-confirm">开始签到</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 结果弹窗 -->
+  <div class="modal" id="modal-result">
+    <div class="modal-box">
+      <h3 id="result-title">结果</h3>
+      <pre class="result-area" id="result-area"></pre>
+      <div class="modal-actions">
+        <button class="btn btn-primary" id="result-close">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 抓包说明弹窗 -->
+  <div class="modal" id="modal-help">
+    <div class="modal-box">
+      <h3>📋 抓包说明</h3>
+      <pre class="result-area">【手机端抓包步骤】
+
+1. 在手机上安装抓包工具（如 HttpCanary、Stream 等）
+2. 打开抓包工具，开始抓包
+3. 打开夸克网盘 APP，进入签到页面
+4. 在抓包工具中找到 URL 为：
+   https://drive-m.quark.cn/1/clouddrive/act/growth/reward
+5. 复制该请求的完整 URL（必须包含 kps、sign、vcode 三个参数）
+6. 回到本页面，点击「添加用户」，粘贴 URL 即可
+
+【注意事项】
+• URL 有效期未知，失效后需要重新抓包
+• 多个账户需要分别抓包获取各自的 URL</pre>
+      <div class="modal-actions">
+        <button class="btn btn-primary" id="help-close">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

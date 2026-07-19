@@ -1,0 +1,24 @@
+services:
+  quark-checkin:
+    build: .
+    image: quark-checkin:latest
+    container_name: quark-checkin
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      # 定时签到时间（24小时制）
+      SIGN_HOUR: "0"
+      SIGN_MINUTE: "30"
+      # server酱 SendKey（从 .env 读取，请勿在 compose 中硬编码真实 key）
+      SERVERCHAN_SENDKEY: "${SERVERCHAN_SENDKEY}"
+      # 通知模式: all(每次) / fail(仅失败) / success(仅成功)
+      NOTIFY_MODE: "all"
+      PORT: "5000"
+      DATA_DIR: "/app/data"
+    volumes:
+      # 持久化 SQLite 数据库与日志文件
+      - quark-data:/app/data
+
+volumes:
+  quark-data:

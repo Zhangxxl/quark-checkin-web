@@ -1,0 +1,26 @@
+# ===== 环境与密钥 =====
+.env
+.env.local
+*.env
+
+# ===== 运行时数据（SQLite + 日志） =====
+data/
+*.db
+*.db-journal
+*.log
+
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# ===== 编辑器 / 系统 =====
+.idea/
+.vscode/
+.DS_Store
+
+# ===== Claude Code 本地配置（不公开） =====
+.claude/
+CLAUDE.md
