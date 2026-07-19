@@ -1,9 +1,9 @@
 # 夸克网盘签到助手 · Web 版
 
-夸克网盘每日自动签到工具，原项目 [QuarkcheckIn](https://github.com/Cp0204/quark-auto-save)（PyQt6 桌面 GUI）的 **Web 重构版**。
+夸克网盘每日自动签到工具，原项目 [QuarkcheckIn](https://github.com/Zh-0316/QuarkcheckIn)（PyQt6 桌面 GUI）的 **Web 重构版**。
 将签到逻辑迁移为 Web 服务：浏览器管理多账户、手动/批量签到、定时任务、实时日志，并通过 [Server 酱](https://sct.ftqq.com/) 推送通知。
 
-> 签到核心逻辑与抓包方式继承自原项目，原项目受 [@Cp0204](https://github.com/Cp0204/quark-auto-save) 启发改编。
+> 签到核心逻辑与抓包方式继承自原项目 [QuarkcheckIn](https://github.com/Zh-0316/QuarkcheckIn)（[@Zh-0316](https://github.com/Zh-0316)）。
 > 本仓库（Web 版）：https://github.com/Zhangxxl/quark-checkin-web
 
 ## 功能特性
