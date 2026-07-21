@@ -522,7 +522,7 @@ def scheduled_job():
 
 def reschedule():
     sch = get_schedule()
-    trigger = CronTrigger(hour=sch["hour"], minute=sch["minute"])
+    trigger = CronTrigger(hour=sch["hour"], minute=sch["minute"], timezone=TZ)
     # 移除旧任务后重新添加
     if scheduler.get_job("daily_sign"):
         scheduler.remove_job("daily_sign")
